@@ -18,7 +18,7 @@ The lock remains opaque: transparency here means less tint over the wallpaper, n
 Only one lock plugin should be enabled. Disable your existing custom lock, then:
 
 ```sh
-omarchy plugin add https://github.com/jmihbay/omarchy-better-lock.git --enable --yes
+omarchy plugin add https://github.com/jmihbay/omarchy-better-than-better-lock.git --enable --yes
 omarchy-shell lock preview
 omarchy-shell lock hidePreview
 ```
