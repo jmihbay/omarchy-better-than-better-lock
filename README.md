@@ -5,7 +5,7 @@ Plugin ID: `jmihbay.better-lock`. Original MIT license and authorship are preser
 
 This fork builds on the excellent Better Lock by making its Omarchy lock screen easier to customize. Use the optional [configuration file](#configuration) to choose the interface language, adjust the wallpaper and sleep timers, and decide which controls to show. The plugin works out of the box with its defaults. An AI agent can help tailor the settings using the [agent guide](AGENTS.md). Your preferences live outside the plugin checkout, so they carry over when you update through Omarchy.
 
-![Better Than Better Lock preview with the Nord theme and English interface](screenshot.png)
+![Better Than Better Lock preview with the Nord theme and English interface](preview.png)
 
 ## What changed
 
