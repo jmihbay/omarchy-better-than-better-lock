@@ -1038,7 +1038,7 @@ Item {
     root.loadConfig();
   }
 
-  IpcHandler {
+  ShellIpc {
     target: "lock"
 
     function lock(): string {
