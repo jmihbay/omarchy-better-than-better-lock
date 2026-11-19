@@ -12,5 +12,6 @@
   "allowFingerprint": true,
   "screenOffSeconds": 15,
   "suspendSeconds": 45,
-  "forgotPasswordScreenOffSeconds": 3.5
+  "forgotPasswordScreenOffSeconds": 3.5,
+  "language": "auto"
 }

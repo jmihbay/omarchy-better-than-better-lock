@@ -56,6 +56,7 @@ Item {
       setFingerprintConfigured(false);
     }
   }
+  property string language: String(setting("language", "auto")).trim().toLowerCase()
   property bool showForgotPassword: setting("showForgotPassword", true) === true
   property real backgroundDim: numberSetting("backgroundDim", 0.15, 0, 1)
   property real backgroundBlur: numberSetting("backgroundBlur", 0.65, 0, 1)
@@ -528,6 +529,7 @@ Item {
         showCapsLock: root.showCapsLock
         showMedia: root.showMedia
         showForgotPassword: root.showForgotPassword
+        language: root.language
         forgotPasswordScreenOffSeconds: root.forgotPasswordScreenOffSeconds
         backgroundDim: root.backgroundDim
         backgroundBlur: root.backgroundBlur
@@ -582,6 +584,7 @@ Item {
       showCapsLock: root.showCapsLock
       showMedia: root.showMedia
       showForgotPassword: root.showForgotPassword
+      language: root.language
       forgotPasswordScreenOffSeconds: root.forgotPasswordScreenOffSeconds
       backgroundDim: root.backgroundDim
       backgroundBlur: root.backgroundBlur

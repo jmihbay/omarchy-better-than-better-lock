@@ -3,7 +3,7 @@
 Personal [Omarchy](https://github.com/omacom/omarchy) lock screen, forked from [BibekBhusal0/omarchy-better-lock](https://github.com/BibekBhusal0/omarchy-better-lock).
 Plugin ID: `jmihbay.better-lock`. Original MIT license and authorship are preserved.
 
-![Better Than Better Lock preview with the Nord theme and Russian interface](screenshot.png)
+![Better Than Better Lock preview with the Nord theme and English interface](screenshot.png)
 
 ## What changed
 
@@ -41,6 +41,7 @@ Optional `~/.config/omarchy/better-lock.json` (see `config.example.json`):
 
 ```json
 {
+  "language": "auto",
   "timeFormat": "HH:mm",
   "dateFormat": "dddd, d MMMM",
   "showKeyboardLayout": true,
@@ -58,7 +59,7 @@ Optional `~/.config/omarchy/better-lock.json` (see `config.example.json`):
 }
 ```
 
-The interface follows the Omarchy language. Plugin-specific strings are available in English and Russian, with English as the fallback. Date and time use the selected locale and your configured format.
+Set `language` to `"auto"` (default) to follow Omarchy, or use `"en"` or `"ru"` to override the lock screen language. Unsupported codes follow Omarchy. This setting does not change the keyboard layout. Plugin-specific strings are available in English and Russian, with English as the fallback. Date and time use the selected locale and your configured format.
 
 Set `allowFingerprint` to `false` for password-only unlock in this plugin. This hides the fingerprint indicator and stops fingerprint discovery and authentication.
 

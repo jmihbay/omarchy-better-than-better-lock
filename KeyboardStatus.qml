@@ -7,6 +7,7 @@ import "KeyboardState.js" as KeyboardState
 
 Row {
   id: root
+  property string capsLockLabel: ""
   property bool active: false
   property bool showLayout: true
   property bool showCapsLock: true
@@ -79,7 +80,7 @@ Row {
     objectName: "lockCapsLock"
     textFormat: Text.PlainText
     visible: root.showCapsLock && root.state.capsLock
-    text: strings.t("lock.capsLockOn")
+    text: root.capsLockLabel || strings.t("lock.capsLockOn")
     color: Commons.Color.accent
     font.family: Style.font.family
     font.pixelSize: Style.font.body

@@ -4,5 +4,8 @@
   "lock.forgotPasswordMessage": "%1 не забывает пароль. Экран будет погашен.",
   "lock.sleep": "Сон",
   "lock.shutdown": "Выключить",
-  "lock.restart": "Перезагрузить"
+  "lock.restart": "Перезагрузить",
+  "lock.enterPassword": "Введите пароль",
+  "lock.checking": "Проверка…",
+  "lock.authenticationFailed": "Ошибка аутентификации (%1)"
 }

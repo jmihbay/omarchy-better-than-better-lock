@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Effects
+import Quickshell.Io
 import Quickshell
 import Quickshell.Services.Mpris
 import qs.Commons
@@ -30,6 +31,25 @@ Item {
   property bool showMedia: false
   property real forgotPasswordScreenOffSeconds: 3.5
   onForgotPasswordScreenOffSecondsChanged: if (forgotPasswordScreenOffSeconds === 0) forgotPasswordSleepTimer.stop()
+  property string language: "auto"
+  readonly property string languageOverride: {
+    var code = language.split(/[-_]/)[0];
+    return code === "en" || code === "ru" ? code : "";
+  }
+  FileView {
+    id: overrideCatalog
+    path: root.languageOverride ? Qt.resolvedUrl("i18n/" + root.languageOverride + ".json") : ""
+    blockLoading: true
+    printErrors: false
+  }
+  readonly property var overrideStrings: {
+    if (!languageOverride) return ({});
+    try { return JSON.parse(overrideCatalog.text() || "{}"); }
+    catch (error) { return ({}); }
+  }
+  function label(key, fallback) {
+    return overrideStrings[key] || fallback;
+  }
   property bool showForgotPassword: true
   property real backgroundDim: 0.15
   property real backgroundBlur: 0.65
@@ -38,7 +58,7 @@ Item {
   property int focusIndex: 0
   property bool mediaPopupVisible: false
 
-  readonly property string placeholderText: Commons.I18n.t("lock.enterPassword")
+  readonly property string placeholderText: root.label("lock.enterPassword", Commons.I18n.t("lock.enterPassword"))
   readonly property int fieldWidth: 381
   readonly property int fieldHeight: 67
   readonly property int outlineThickness: 3
@@ -75,7 +95,7 @@ Item {
   readonly property bool isMediaPlaying: activeMprisPlayer ? activeMprisPlayer.isPlaying : false
 
   property date now: new Date()
-  readonly property var displayLocale: Qt.locale(Commons.I18n.formatLocale)
+  readonly property var displayLocale: Qt.locale(languageOverride === "ru" ? "ru_RU" : languageOverride === "en" ? "en_US" : Commons.I18n.formatLocale)
   readonly property string currentTimeString: displayLocale.toString(now, timeFormat)
   readonly property string currentDateString: displayLocale.toString(now, dateFormat)
 
@@ -335,7 +355,7 @@ Item {
       anchors.topMargin: 80
       anchors.horizontalCenter: parent.horizontalCenter
       width: Math.min(root.width - 80, 720)
-      text: strings.t("lock.forgotPasswordMessage").arg(root.forgotPasswordName)
+      text: root.label("lock.forgotPasswordMessage", strings.t("lock.forgotPasswordMessage")).arg(root.forgotPasswordName)
       color: Commons.Color.lock.textError
       font.family: Style.font.family
       font.pixelSize: Math.round(Style.font.heading * 1.6)
@@ -629,7 +649,7 @@ Item {
       Text {
         textFormat: Text.PlainText
         anchors.fill: passwordInput
-        text: root.authenticatingPassword ? Commons.I18n.t("lock.checking") : (root.passwordFailed ? Commons.I18n.t("lock.authenticationFailed").arg(Commons.I18n.formatNumber(root.failedAttempts)) : root.placeholderText)
+        text: root.authenticatingPassword ? root.label("lock.checking", Commons.I18n.t("lock.checking")) : (root.passwordFailed ? root.label("lock.authenticationFailed", Commons.I18n.t("lock.authenticationFailed")).arg(root.failedAttempts.toLocaleString(root.displayLocale, "f", 0)) : root.placeholderText)
         visible: passwordInput.text.length === 0
         color: root.authenticatingPassword ? Commons.Color.lock.text : (root.passwordFailed ? Commons.Color.lock.textError : Commons.Color.lock.placeholder)
         font.family: Style.font.family
@@ -665,6 +685,7 @@ Item {
       active: root.loadBackground && root.visible
       showLayout: root.showKeyboardLayout
       showCapsLock: root.showCapsLock
+      capsLockLabel: root.overrideStrings["lock.capsLockOn"] || ""
     }
 
     Button {
@@ -673,7 +694,7 @@ Item {
       anchors.top: keyboardStatus.bottom
       anchors.topMargin: keyboardStatus.height > 0 ? Style.space(8) : Style.space(16)
       anchors.horizontalCenter: parent.horizontalCenter
-      text: strings.t("lock.forgotPassword")
+      text: root.label("lock.forgotPassword", strings.t("lock.forgotPassword"))
       fontSize: Style.font.bodySmall
       foreground: Commons.Color.lock.placeholder
       background: "transparent"
@@ -692,7 +713,7 @@ Item {
 
       Button {
         id: sleepButton
-        text: strings.t("lock.sleep")
+        text: root.label("lock.sleep", strings.t("lock.sleep"))
         iconText: "󰤄"
         bordered: true
         horizontalPadding: 20
@@ -703,7 +724,7 @@ Item {
 
       Button {
         id: shutdownButton
-        text: strings.t("lock.shutdown")
+        text: root.label("lock.shutdown", strings.t("lock.shutdown"))
         iconText: "󰐥"
         bordered: true
         horizontalPadding: 20
@@ -714,7 +735,7 @@ Item {
 
       Button {
         id: restartButton
-        text: strings.t("lock.restart")
+        text: root.label("lock.restart", strings.t("lock.restart"))
         iconText: "󰜉"
         bordered: true
         horizontalPadding: 20

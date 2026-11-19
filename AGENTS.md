@@ -39,6 +39,7 @@ The file is `~/.config/omarchy/better-lock.json`, NOT upstream's `lock.json`.
 See `config.example.json` and the README for the full defaults. File values override
 plugin settings and are re-read approximately every 10 seconds.
 
+- `language`: `auto` follows Omarchy, `en` and `ru` override the lock screen language.
 - `timeFormat`, `dateFormat`: Qt date/time patterns; offer 12/24-hour preference.
 - `showKeyboardLayout`, `showCapsLock`: default true; Caps Lock text appears only when on.
 - `allowFingerprint`: defaults to true. Set false to hide the indicator and disable fingerprint authentication in this plugin.

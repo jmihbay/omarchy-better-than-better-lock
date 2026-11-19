@@ -4,5 +4,8 @@
   "lock.forgotPasswordMessage": "%1 never forgets their password. Locking down.",
   "lock.sleep": "Sleep",
   "lock.shutdown": "Shutdown",
-  "lock.restart": "Restart"
+  "lock.restart": "Restart",
+  "lock.enterPassword": "Enter Password",
+  "lock.checking": "Checking…",
+  "lock.authenticationFailed": "Authentication failed (%1)"
 }
