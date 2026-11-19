@@ -25,6 +25,14 @@ omarchy-shell lock hidePreview
 
 Preview is not a real lock. Test actual password/fingerprint unlocking yourself before relying on it.
 
+## Installing with an AI agent
+
+This repository includes an [AGENTS.md](AGENTS.md) guide for agents helping with
+installation, configuration and development. Ask your agent to read it before
+installing. It explains which settings to offer immediately, how to preserve your
+existing configuration, and how to check the appearance in preview and roll back.
+Agents that do not automatically discover `AGENTS.md` can read it explicitly.
+
 ## Configuration
 
 Optional `~/.config/omarchy/better-lock.json` (see `config.example.json`):
@@ -59,11 +67,11 @@ omarchy plugin validate .
 
 `origin` is our fork; `upstream` is the original repository. Installed copies update from our fork with `omarchy plugin update jmihbay.better-lock`. Upstream changes are reviewed and merged in this development checkout before pushing to our fork; conflicts are resolved here. Local configuration remains outside the repository.
 
-To restore the previous local lock:
+To restore your previous lock, disable this plugin and enable the lock ID you recorded before installation. For the built-in Omarchy lock:
 
 ```sh
 omarchy plugin disable jmihbay.better-lock
-omarchy plugin enable j1z3.lock
+omarchy plugin enable omarchy.lock
 ```
 
 ## Credits
