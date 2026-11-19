@@ -1,4 +1,4 @@
-# Better Than Better Lock - jmihbay fork of Better Lock
+# Better Than Better Lock - jmihbay fork of [Better Lock](https://github.com/BibekBhusal0/omarchy-better-lock)
 
 Personal [Omarchy](https://github.com/omacom/omarchy) lock screen, forked from [BibekBhusal0/omarchy-better-lock](https://github.com/BibekBhusal0/omarchy-better-lock).
 Plugin ID: `jmihbay.better-lock`. Original MIT license and authorship are preserved.
