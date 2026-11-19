@@ -9,5 +9,8 @@
   "backgroundBlurMax": 64,
   "backgroundBlurMultiplier": 1.0,
   "showForgotPassword": true,
-  "allowFingerprint": true
+  "allowFingerprint": true,
+  "screenOffSeconds": 5,
+  "suspendSeconds": 0,
+  "forgotPasswordScreenOffSeconds": 3.5
 }

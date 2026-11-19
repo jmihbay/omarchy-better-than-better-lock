@@ -41,6 +41,11 @@ Item {
   property bool showKeyboardLayout: setting("showKeyboardLayout", true) === true
   property bool showCapsLock: setting("showCapsLock", true) === true
   property bool showMedia: setting("showMedia", false) === true
+  property real screenOffSeconds: numberSetting("screenOffSeconds", 5, 0, 86400)
+  property real suspendSeconds: numberSetting("suspendSeconds", 0, 0, 86400)
+  property real forgotPasswordScreenOffSeconds: numberSetting("forgotPasswordScreenOffSeconds", 3.5, 0, 86400)
+  onScreenOffSecondsChanged: if (lockRequested) armBlankTimer()
+  onSuspendSecondsChanged: if (lockRequested) armBlankTimer()
   property bool allowFingerprint: setting("allowFingerprint", true) !== false
   onAllowFingerprintChanged: {
     if (allowFingerprint) {
@@ -354,6 +359,7 @@ Item {
     pendingSessionLockTimer.stop();
     resetAuthenticationState();
     idleBlankTimer.stop();
+    idleSuspendTimer.stop();
     sessionLock.locked = false;
     logEvent("unlocked");
     runWake();
@@ -361,7 +367,14 @@ Item {
 
   function armBlankTimer() {
     idleBlankTimer.armedAt = Date.now();
-    idleBlankTimer.restart();
+    idleBlankTimer.stop();
+    idleSuspendTimer.stop();
+    if (screenOffSeconds > 0)
+      idleBlankTimer.start();
+    if (suspendSeconds > 0) {
+      idleSuspendTimer.armedAt = idleBlankTimer.armedAt;
+      idleSuspendTimer.start();
+    }
   }
 
   function runWake() {
@@ -515,6 +528,7 @@ Item {
         showCapsLock: root.showCapsLock
         showMedia: root.showMedia
         showForgotPassword: root.showForgotPassword
+        forgotPasswordScreenOffSeconds: root.forgotPasswordScreenOffSeconds
         backgroundDim: root.backgroundDim
         backgroundBlur: root.backgroundBlur
         backgroundBlurMax: root.backgroundBlurMax
@@ -568,6 +582,7 @@ Item {
       showCapsLock: root.showCapsLock
       showMedia: root.showMedia
       showForgotPassword: root.showForgotPassword
+      forgotPasswordScreenOffSeconds: root.forgotPasswordScreenOffSeconds
       backgroundDim: root.backgroundDim
       backgroundBlur: root.backgroundBlur
       backgroundBlurMax: root.backgroundBlurMax
@@ -948,7 +963,7 @@ Item {
 
   Timer {
     id: idleBlankTimer
-    interval: 5000
+    interval: Math.max(1, Math.round(root.screenOffSeconds * 1000))
     repeat: false
     property double armedAt: 0
     onTriggered: {
@@ -956,8 +971,23 @@ Item {
         root.armBlankTimer();
         return;
       }
-      if (root.lockRequested && !root.authenticatingPassword)
+      if (root.screenOffSeconds > 0 && root.lockRequested && !root.authenticatingPassword)
         root.runBlank();
+    }
+  }
+
+  Timer {
+    id: idleSuspendTimer
+    interval: Math.max(1, Math.round(root.suspendSeconds * 1000))
+    repeat: false
+    property double armedAt: 0
+    onTriggered: {
+      if (Date.now() - armedAt > interval + 2000 || (root.lockRequested && !sessionLock.secure)) {
+        root.armBlankTimer();
+        return;
+      }
+      if (root.suspendSeconds > 0 && root.lockRequested && sessionLock.secure && !root.authenticatingPassword)
+        root.requestSuspend();
     }
   }
 
@@ -1006,9 +1036,10 @@ Item {
   onAuthenticatingPasswordChanged: {
     if (!lockRequested)
       return;
-    if (authenticatingPassword)
+    if (authenticatingPassword) {
       idleBlankTimer.stop();
-    else
+      idleSuspendTimer.stop();
+    } else
       armBlankTimer();
   }
 

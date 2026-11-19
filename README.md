@@ -45,6 +45,9 @@ Optional `~/.config/omarchy/better-lock.json` (see `config.example.json`):
   "showCapsLock": true,
   "showMedia": false,
   "showForgotPassword": true,
+  "screenOffSeconds": 5,
+  "suspendSeconds": 0,
+  "forgotPasswordScreenOffSeconds": 3.5,
   "allowFingerprint": true,
   "backgroundDim": 0.15,
   "backgroundBlur": 0.65,
@@ -58,6 +61,13 @@ The interface follows the Omarchy language. Plugin-specific strings are availabl
 Set `allowFingerprint` to `false` for password-only unlock in this plugin. This hides the fingerprint indicator and stops fingerprint discovery and authentication.
 
 Set `showForgotPassword` to `false` to hide the button and remove it from keyboard navigation. Disabling it also clears its message and cancels a pending screen-blank timer. It is shown by default for compatibility.
+
+`screenOffSeconds` blanks the display after locked inactivity. `suspendSeconds`
+suspends the computer after locked inactivity, independently of display blanking.
+Both count from the last activity, or from locking if there was none.
+`forgotPasswordScreenOffSeconds` controls the separate delay after pressing
+Forgot password. All three are in seconds. Set any of them to `0` to disable that
+timer. The Sleep button still suspends immediately.
 
 The file is re-read every 10 seconds, without restarting the shell. File values take precedence over plugin settings. Numeric settings are validated and clamped: dim/blur 0–1, blurMax 0–128, multiplier 0–2. Lower `backgroundDim` shows more wallpaper; lower `backgroundBlur` reveals more detail. The upstream `lock.json` is not used by this fork.
 

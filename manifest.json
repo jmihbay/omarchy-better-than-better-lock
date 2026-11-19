@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "jmihbay.better-lock",
   "name": "Better Lock — jmihbay",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "author": "jmihbay; original by Bibek Bhusal",
   "description": "Theme-following lock with keyboard layout, Caps Lock and configurable wallpaper effects.",
   "homepage": "https://github.com/jmihbay/omarchy-better-than-better-lock",
@@ -30,7 +30,10 @@
     "backgroundBlurMax": 64,
     "backgroundBlurMultiplier": 1.0,
     "showForgotPassword": true,
-    "allowFingerprint": true
+    "allowFingerprint": true,
+    "screenOffSeconds": 5,
+    "suspendSeconds": 0,
+    "forgotPasswordScreenOffSeconds": 3.5
   },
   "schema": [
     {
@@ -98,6 +101,24 @@
       "type": "boolean",
       "label": "Allow fingerprint unlock",
       "defaultValue": true
+    },
+    {
+      "key": "screenOffSeconds",
+      "type": "number",
+      "label": "Turn off display after inactivity (seconds)",
+      "defaultValue": 5
+    },
+    {
+      "key": "suspendSeconds",
+      "type": "number",
+      "label": "Suspend after inactivity (seconds)",
+      "defaultValue": 0
+    },
+    {
+      "key": "forgotPasswordScreenOffSeconds",
+      "type": "number",
+      "label": "Turn off display after Forgot password (seconds)",
+      "defaultValue": 3.5
     }
   ]
 }

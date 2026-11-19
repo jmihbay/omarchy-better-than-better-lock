@@ -28,6 +28,8 @@ Item {
   property bool showKeyboardLayout: true
   property bool showCapsLock: true
   property bool showMedia: false
+  property real forgotPasswordScreenOffSeconds: 3.5
+  onForgotPasswordScreenOffSecondsChanged: if (forgotPasswordScreenOffSeconds === 0) forgotPasswordSleepTimer.stop()
   property bool showForgotPassword: true
   property real backgroundDim: 0.15
   property real backgroundBlur: 0.65
@@ -185,7 +187,7 @@ Item {
     var capName = nameStr.charAt(0).toUpperCase() + nameStr.slice(1);
     root.forgotPasswordName = capName;
     forgotPasswordTriggered();
-    forgotPasswordSleepTimer.restart();
+    if (forgotPasswordScreenOffSeconds > 0) forgotPasswordSleepTimer.restart();
   }
 
   function ensureFocusValid() {
@@ -242,7 +244,7 @@ Item {
 
   Timer {
     id: forgotPasswordSleepTimer
-    interval: 3500
+    interval: Math.max(1, Math.round(root.forgotPasswordScreenOffSeconds * 1000))
     repeat: false
     onTriggered: {
       root.sleepRequested();
