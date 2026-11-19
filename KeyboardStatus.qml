@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import qs.Commons
@@ -42,7 +43,12 @@ Row {
   }
   Process {
     id: query
-    command: ["hyprctl", "-j", "devices"]
+    command: ["/usr/bin/hyprctl", "-j", "devices"]
+    clearEnvironment: true
+    environment: ({
+      "HYPRLAND_INSTANCE_SIGNATURE": Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE"),
+      "XDG_RUNTIME_DIR": Quickshell.env("XDG_RUNTIME_DIR")
+    })
     onRunningChanged: if (running) deadline.restart(); else deadline.stop()
     property string output: ""
     property bool overflowed: false
