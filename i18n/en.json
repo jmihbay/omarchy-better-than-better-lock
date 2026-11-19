@@ -1,1 +1,8 @@
-{"lock.capsLockOn": "Caps Lock on"}
+{
+  "lock.capsLockOn": "Caps Lock on",
+  "lock.forgotPassword": "Forgot password",
+  "lock.forgotPasswordMessage": "%1 never forgets their password. Locking down.",
+  "lock.sleep": "Sleep",
+  "lock.shutdown": "Shutdown",
+  "lock.restart": "Restart"
+}

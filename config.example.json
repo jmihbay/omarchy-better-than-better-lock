@@ -8,5 +8,6 @@
   "backgroundBlur": 0.65,
   "backgroundBlurMax": 64,
   "backgroundBlurMultiplier": 1.0,
-  "showForgotPassword": true
+  "showForgotPassword": true,
+  "allowFingerprint": true
 }

@@ -1,1 +1,8 @@
-{"lock.capsLockOn": "Caps Lock включён"}
+{
+  "lock.capsLockOn": "Caps Lock включён",
+  "lock.forgotPassword": "Забыли пароль?",
+  "lock.forgotPasswordMessage": "%1 не забывает пароль. Экран будет погашен.",
+  "lock.sleep": "Сон",
+  "lock.shutdown": "Выключить",
+  "lock.restart": "Перезагрузить"
+}

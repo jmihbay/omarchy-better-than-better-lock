@@ -9,12 +9,14 @@ import qs.Ui
 Item {
   id: root
 
+  Commons.Translations { id: strings; directory: Qt.resolvedUrl("i18n") }
+
   property string backgroundPath: ""
   property int backgroundVersion: 0
   property bool fingerprintConfigured: false
   property bool authenticatingPassword: false
-  property string failureMessage: ""
-  property string forgotPasswordMessage: ""
+  property bool passwordFailed: false
+  property string forgotPasswordName: ""
   property int failedAttempts: 0
   property bool inputEnabled: true
   property bool loadBackground: true
@@ -34,7 +36,7 @@ Item {
   property int focusIndex: 0
   property bool mediaPopupVisible: false
 
-  readonly property string placeholderText: "Enter Password"
+  readonly property string placeholderText: Commons.I18n.t("lock.enterPassword")
   readonly property int fieldWidth: 381
   readonly property int fieldHeight: 67
   readonly property int outlineThickness: 3
@@ -43,8 +45,8 @@ Item {
   readonly property int passwordDotLetterSpacing: Math.round(Style.font.heading * 0.19)
   readonly property real fingerprintReserve: fingerprintConfigured ? Math.round(fingerprintIcon.implicitWidth + 12) : 0
   readonly property real passwordDotScale: dotMetrics.advanceWidth > 0 ? Math.min(1, (passwordInput.width - 4) / dotMetrics.advanceWidth) : 1
-  readonly property bool showPasswordCursor: inputEnabled && !authenticatingPassword && failureMessage.length === 0
-  readonly property bool errorState: failureMessage.length > 0
+  readonly property bool showPasswordCursor: inputEnabled && !authenticatingPassword && !passwordFailed
+  readonly property bool errorState: passwordFailed
   readonly property var inputBorderSpec: errorState ? Border.surfaceSpec("lock", "border-error", Commons.Color.lock.borderError, root.outlineThickness, "border-alpha") : (passwordInput.activeFocus ? Border.surfaceSpec("lock", "border-active", Commons.Color.lock.borderActive, root.outlineThickness, "border-alpha") : Border.surfaceSpec("lock", "border", Commons.Color.lock.border, 1, "border-alpha"))
 
   readonly property var mprisPlayers: root.showMedia && Mpris.players ? Mpris.players.values : []
@@ -70,8 +72,10 @@ Item {
   readonly property string mediaArtUrl: activeMprisPlayer ? (activeMprisPlayer.trackArtUrl || "") : ""
   readonly property bool isMediaPlaying: activeMprisPlayer ? activeMprisPlayer.isPlaying : false
 
-  property string currentTimeString: ""
-  property string currentDateString: ""
+  property date now: new Date()
+  readonly property var displayLocale: Qt.locale(Commons.I18n.formatLocale)
+  readonly property string currentTimeString: displayLocale.toString(now, timeFormat)
+  readonly property string currentDateString: displayLocale.toString(now, dateFormat)
 
   signal submitPassword(string password)
   signal passwordTextEdited(string password)
@@ -179,7 +183,7 @@ Item {
     root.passwordTextEdited("");
     var nameStr = root.userName ? root.userName : "User";
     var capName = nameStr.charAt(0).toUpperCase() + nameStr.slice(1);
-    root.forgotPasswordMessage = capName + " never forgots his password. You are not him, Locking down";
+    root.forgotPasswordName = capName;
     forgotPasswordTriggered();
     forgotPasswordSleepTimer.restart();
   }
@@ -197,7 +201,7 @@ Item {
   onShowForgotPasswordChanged: {
     if (!showForgotPassword) {
       forgotPasswordSleepTimer.stop();
-      forgotPasswordMessage = "";
+      forgotPasswordName = "";
     }
     ensureFocusValid();
   }
@@ -233,11 +237,7 @@ Item {
     running: root.visible
     repeat: true
     triggeredOnStart: true
-    onTriggered: {
-      var now = new Date();
-      currentTimeString = Qt.formatDateTime(now, root.timeFormat);
-      currentDateString = Qt.formatDateTime(now, root.dateFormat);
-    }
+    onTriggered: root.now = new Date()
   }
 
   Timer {
@@ -328,12 +328,12 @@ Item {
     Text {
       textFormat: Text.PlainText
       id: forgotPasswordMsgText
-      visible: root.forgotPasswordMessage.length > 0
+      visible: root.forgotPasswordName.length > 0
       anchors.top: parent.top
       anchors.topMargin: 80
       anchors.horizontalCenter: parent.horizontalCenter
       width: Math.min(root.width - 80, 720)
-      text: root.forgotPasswordMessage
+      text: strings.t("lock.forgotPasswordMessage").arg(root.forgotPasswordName)
       color: Commons.Color.lock.textError
       font.family: Style.font.family
       font.pixelSize: Math.round(Style.font.heading * 1.6)
@@ -587,10 +587,10 @@ Item {
             root.wakeRequested();
             root.focusIndex = 0;
           }
-          if (text.length > 0 && root.failureMessage.length > 0)
+          if (text.length > 0 && root.passwordFailed)
             root.clearFailureRequested();
-          if (text.length > 0 && root.forgotPasswordMessage.length > 0)
-            root.forgotPasswordMessage = "";
+          if (text.length > 0 && root.forgotPasswordName.length > 0)
+            root.forgotPasswordName = "";
         }
 
         onAccepted: {
@@ -627,12 +627,12 @@ Item {
       Text {
         textFormat: Text.PlainText
         anchors.fill: passwordInput
-        text: root.authenticatingPassword ? "Checking…" : (root.failureMessage.length > 0 ? root.failureMessage : root.placeholderText)
+        text: root.authenticatingPassword ? Commons.I18n.t("lock.checking") : (root.passwordFailed ? Commons.I18n.t("lock.authenticationFailed").arg(Commons.I18n.formatNumber(root.failedAttempts)) : root.placeholderText)
         visible: passwordInput.text.length === 0
-        color: root.authenticatingPassword ? Commons.Color.lock.text : (root.failureMessage.length > 0 ? Commons.Color.lock.textError : Commons.Color.lock.placeholder)
+        color: root.authenticatingPassword ? Commons.Color.lock.text : (root.passwordFailed ? Commons.Color.lock.textError : Commons.Color.lock.placeholder)
         font.family: Style.font.family
         font.pixelSize: root.fieldFontSize
-        font.italic: !root.authenticatingPassword && root.failureMessage.length > 0
+        font.italic: !root.authenticatingPassword && root.passwordFailed
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -671,7 +671,7 @@ Item {
       anchors.top: keyboardStatus.bottom
       anchors.topMargin: keyboardStatus.height > 0 ? Style.space(8) : Style.space(16)
       anchors.horizontalCenter: parent.horizontalCenter
-      text: "Forgot password"
+      text: strings.t("lock.forgotPassword")
       fontSize: Style.font.bodySmall
       foreground: Commons.Color.lock.placeholder
       background: "transparent"
@@ -690,7 +690,7 @@ Item {
 
       Button {
         id: sleepButton
-        text: "Sleep"
+        text: strings.t("lock.sleep")
         iconText: "󰤄"
         bordered: true
         horizontalPadding: 20
@@ -701,7 +701,7 @@ Item {
 
       Button {
         id: shutdownButton
-        text: "Shutdown"
+        text: strings.t("lock.shutdown")
         iconText: "󰐥"
         bordered: true
         horizontalPadding: 20
@@ -712,7 +712,7 @@ Item {
 
       Button {
         id: restartButton
-        text: "Restart"
+        text: strings.t("lock.restart")
         iconText: "󰜉"
         bordered: true
         horizontalPadding: 20

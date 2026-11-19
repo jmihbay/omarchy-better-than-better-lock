@@ -45,12 +45,17 @@ Optional `~/.config/omarchy/better-lock.json` (see `config.example.json`):
   "showCapsLock": true,
   "showMedia": false,
   "showForgotPassword": true,
+  "allowFingerprint": true,
   "backgroundDim": 0.15,
   "backgroundBlur": 0.65,
   "backgroundBlurMax": 64,
   "backgroundBlurMultiplier": 1.0
 }
 ```
+
+The interface follows the Omarchy language. Plugin-specific strings are available in English and Russian, with English as the fallback. Date and time use the selected locale and your configured format.
+
+Set `allowFingerprint` to `false` for password-only unlock in this plugin. This hides the fingerprint indicator and stops fingerprint discovery and authentication.
 
 Set `showForgotPassword` to `false` to hide the button and remove it from keyboard navigation. Disabling it also clears its message and cancels a pending screen-blank timer. It is shown by default for compatibility.
 

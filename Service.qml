@@ -41,6 +41,16 @@ Item {
   property bool showKeyboardLayout: setting("showKeyboardLayout", true) === true
   property bool showCapsLock: setting("showCapsLock", true) === true
   property bool showMedia: setting("showMedia", false) === true
+  property bool allowFingerprint: setting("allowFingerprint", true) !== false
+  onAllowFingerprintChanged: {
+    if (allowFingerprint) {
+      refreshFingerprintStatus();
+    } else {
+      fingerprintRetryTimer.stop();
+      if (fingerprintListProc.running) killProc(fingerprintListProc);
+      setFingerprintConfigured(false);
+    }
+  }
   property bool showForgotPassword: setting("showForgotPassword", true) === true
   property real backgroundDim: numberSetting("backgroundDim", 0.15, 0, 1)
   property real backgroundBlur: numberSetting("backgroundBlur", 0.65, 0, 1)
@@ -56,7 +66,7 @@ Item {
   property bool previewVisible: false
   property string enteredPassword: ""
   property string pendingPassword: ""
-  property string failureMessage: ""
+  property bool passwordFailed: false
   property int failedAttempts: 0
   property string backgroundPath: ""
   property int backgroundVersion: 0
@@ -275,6 +285,7 @@ Item {
   }
 
   function refreshFingerprintStatus() {
+    if (!allowFingerprint) return;
     if (!root.fingerprintPamFile || root.loginName === "" || fingerprintListProc.running) {
       if (!root.fingerprintPamFile || root.loginName === "")
         setFingerprintConfigured(false);
@@ -290,7 +301,7 @@ Item {
   }
 
   function setFingerprintConfigured(on) {
-    root.fingerprintConfigured = on === true;
+    root.fingerprintConfigured = root.allowFingerprint && on === true;
     if (root.lockRequested && root.fingerprintConfigured)
       root.startFingerprint();
     else if (!root.fingerprintConfigured && fingerprintPam.active)
@@ -306,7 +317,7 @@ Item {
   function resetAuthenticationState() {
     enteredPassword = "";
     pendingPassword = "";
-    failureMessage = "";
+    passwordFailed = false;
     failedAttempts = 0;
     authenticatingPassword = false;
     fingerprintAuthenticating = false;
@@ -401,7 +412,7 @@ Item {
       return;
     runWake();
     pendingPassword = password;
-    failureMessage = "";
+    passwordFailed = false;
     authenticatingPassword = true;
     if (!passwordPam.start()) {
       handlePasswordFailure();
@@ -423,12 +434,12 @@ Item {
     enteredPassword = "";
     pendingPassword = "";
     failedAttempts += 1;
-    failureMessage = "Authentication failed (" + failedAttempts + ")";
+    passwordFailed = true;
     runWake();
   }
 
   function startFingerprint() {
-    if (!lockRequested || !sessionLock.secure || !fingerprintConfigured)
+    if (!lockRequested || !sessionLock.secure || !allowFingerprint || !fingerprintConfigured)
       return;
     if (fingerprintPam.active || fingerprintAuthenticating)
       return;
@@ -440,7 +451,7 @@ Item {
 
   function handleFingerprintFinished(result) {
     fingerprintAuthenticating = false;
-    if (!lockRequested)
+    if (!allowFingerprint || !lockRequested)
       return;
     if (result === PamResult.Success) {
       finishUnlock();
@@ -492,7 +503,7 @@ Item {
         backgroundVersion: root.backgroundVersion
         fingerprintConfigured: root.fingerprintConfigured
         authenticatingPassword: root.authenticatingPassword
-        failureMessage: root.failureMessage
+        passwordFailed: root.passwordFailed
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
         loadBackground: root.locked
@@ -514,7 +525,7 @@ Item {
         onSubmitPassword: function (password) {
           root.submitPassword(password);
         }
-        onClearFailureRequested: root.failureMessage = ""
+        onClearFailureRequested: root.passwordFailed = false
         onWakeRequested: root.runWake()
         onSleepRequested: root.runBlank()
         onShutdownRequested: root.requestShutdown()
@@ -545,7 +556,7 @@ Item {
       backgroundVersion: root.backgroundVersion
       fingerprintConfigured: root.fingerprintConfigured
       authenticatingPassword: false
-      failureMessage: ""
+      passwordFailed: false
       failedAttempts: 0
       inputEnabled: false
       loadBackground: root.previewVisible
