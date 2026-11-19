@@ -41,6 +41,7 @@ Item {
   property bool showKeyboardLayout: setting("showKeyboardLayout", true) === true
   property bool showCapsLock: setting("showCapsLock", true) === true
   property bool showMedia: setting("showMedia", false) === true
+  property bool showForgotPassword: setting("showForgotPassword", true) === true
   property real backgroundDim: numberSetting("backgroundDim", 0.15, 0, 1)
   property real backgroundBlur: numberSetting("backgroundBlur", 0.65, 0, 1)
   property int backgroundBlurMax: Math.round(numberSetting("backgroundBlurMax", 64, 0, 128))
@@ -502,6 +503,7 @@ Item {
         showKeyboardLayout: root.showKeyboardLayout
         showCapsLock: root.showCapsLock
         showMedia: root.showMedia
+        showForgotPassword: root.showForgotPassword
         backgroundDim: root.backgroundDim
         backgroundBlur: root.backgroundBlur
         backgroundBlurMax: root.backgroundBlurMax
@@ -554,6 +556,7 @@ Item {
       showKeyboardLayout: root.showKeyboardLayout
       showCapsLock: root.showCapsLock
       showMedia: root.showMedia
+      showForgotPassword: root.showForgotPassword
       backgroundDim: root.backgroundDim
       backgroundBlur: root.backgroundBlur
       backgroundBlurMax: root.backgroundBlurMax

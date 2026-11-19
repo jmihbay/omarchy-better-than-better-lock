@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "jmihbay.better-lock",
   "name": "Better Lock — jmihbay",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "jmihbay; original by Bibek Bhusal",
   "description": "Theme-following lock with keyboard layout, Caps Lock and configurable wallpaper effects.",
   "homepage": "https://github.com/jmihbay/omarchy-better-than-better-lock",
@@ -28,7 +28,8 @@
     "backgroundDim": 0.15,
     "backgroundBlur": 0.65,
     "backgroundBlurMax": 64,
-    "backgroundBlurMultiplier": 1.0
+    "backgroundBlurMultiplier": 1.0,
+    "showForgotPassword": true
   },
   "schema": [
     {
@@ -84,6 +85,12 @@
       "type": "number",
       "label": "backgroundBlurMultiplier",
       "defaultValue": 1.0
+    },
+    {
+      "key": "showForgotPassword",
+      "type": "boolean",
+      "label": "Show Forgot password button",
+      "defaultValue": true
     }
   ]
 }

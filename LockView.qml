@@ -26,6 +26,7 @@ Item {
   property bool showKeyboardLayout: true
   property bool showCapsLock: true
   property bool showMedia: false
+  property bool showForgotPassword: true
   property real backgroundDim: 0.15
   property real backgroundBlur: 0.65
   property int backgroundBlurMax: 64
@@ -83,7 +84,8 @@ Item {
   signal forgotPasswordTriggered
 
   function activeIndices() {
-    var list = [0, 1];
+    var list = [0];
+    if (showForgotPassword) list.push(1);
     if (hasMedia) {
       list.push(2);
       if (mediaPopupVisible && activeMprisPlayer) {
@@ -172,6 +174,7 @@ Item {
   }
 
   function handleForgotPassword() {
+    if (!root.showForgotPassword) return;
     root.wakeRequested();
     root.passwordTextEdited("");
     var nameStr = root.userName ? root.userName : "User";
@@ -191,6 +194,13 @@ Item {
   }
 
   onPasswordTextChanged: syncPasswordText()
+  onShowForgotPasswordChanged: {
+    if (!showForgotPassword) {
+      forgotPasswordSleepTimer.stop();
+      forgotPasswordMessage = "";
+    }
+    ensureFocusValid();
+  }
   onActiveMprisPlayerChanged: ensureFocusValid()
   onHasMediaChanged: ensureFocusValid()
   onMediaPopupVisibleChanged: {
@@ -657,6 +667,7 @@ Item {
 
     Button {
       id: forgotPasswordBtn
+      visible: root.showForgotPassword
       anchors.top: keyboardStatus.bottom
       anchors.topMargin: keyboardStatus.height > 0 ? Style.space(8) : Style.space(16)
       anchors.horizontalCenter: parent.horizontalCenter

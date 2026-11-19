@@ -36,12 +36,15 @@ Optional `~/.config/omarchy/better-lock.json` (see `config.example.json`):
   "showKeyboardLayout": true,
   "showCapsLock": true,
   "showMedia": false,
+  "showForgotPassword": true,
   "backgroundDim": 0.15,
   "backgroundBlur": 0.65,
   "backgroundBlurMax": 64,
   "backgroundBlurMultiplier": 1.0
 }
 ```
+
+Set `showForgotPassword` to `false` to hide the button and remove it from keyboard navigation. Disabling it also clears its message and cancels a pending screen-blank timer. It is shown by default for compatibility.
 
 The file is re-read every 10 seconds, without restarting the shell. File values take precedence over plugin settings. Numeric settings are validated and clamped: dim/blur 0–1, blurMax 0–128, multiplier 0–2. Lower `backgroundDim` shows more wallpaper; lower `backgroundBlur` reveals more detail. The upstream `lock.json` is not used by this fork.
 
