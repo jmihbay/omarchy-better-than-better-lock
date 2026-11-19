@@ -41,8 +41,8 @@ Item {
   property bool showKeyboardLayout: setting("showKeyboardLayout", true) === true
   property bool showCapsLock: setting("showCapsLock", true) === true
   property bool showMedia: setting("showMedia", false) === true
-  property real screenOffSeconds: numberSetting("screenOffSeconds", 5, 0, 86400)
-  property real suspendSeconds: numberSetting("suspendSeconds", 0, 0, 86400)
+  property real screenOffSeconds: numberSetting("screenOffSeconds", 15, 0, 86400)
+  property real suspendSeconds: numberSetting("suspendSeconds", 45, 0, 86400)
   property real forgotPasswordScreenOffSeconds: numberSetting("forgotPasswordScreenOffSeconds", 3.5, 0, 86400)
   onScreenOffSecondsChanged: if (lockRequested) armBlankTimer()
   onSuspendSecondsChanged: if (lockRequested) armBlankTimer()

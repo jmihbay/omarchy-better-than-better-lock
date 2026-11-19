@@ -42,7 +42,7 @@ plugin settings and are re-read approximately every 10 seconds.
 - `timeFormat`, `dateFormat`: Qt date/time patterns; offer 12/24-hour preference.
 - `showKeyboardLayout`, `showCapsLock`: default true; Caps Lock text appears only when on.
 - `allowFingerprint`: defaults to true. Set false to hide the indicator and disable fingerprint authentication in this plugin.
-- `screenOffSeconds`, `suspendSeconds`, `forgotPasswordScreenOffSeconds`: delays in seconds. Default 5, 0, and 3.5 respectively. Zero disables the corresponding timer.
+- `screenOffSeconds`, `suspendSeconds`, `forgotPasswordScreenOffSeconds`: delays in seconds. Default 15, 45, and 3.5 respectively. Zero disables the corresponding timer.
 - `showMedia`: default false; controls MPRIS player visibility and focus targets.
 - `showForgotPassword`: default true. Offer false if the user wants a simpler lock.
   This button is NOT password recovery: it displays a message and blanks the screen.
