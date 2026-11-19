@@ -4,6 +4,7 @@ import Quickshell.Io
 import Quickshell.Services.Pam
 import Quickshell.Wayland
 import qs.Commons
+import qs.Commons as Commons
 
 Item {
   id: root
@@ -34,8 +35,16 @@ Item {
   property int helperTimeoutMs: 3000
   property int wakeTimeoutMs: 5000
 
-  property string timeFormat: setting("timeFormat", "hh:mm AP")
-  property string dateFormat: setting("dateFormat", "dddd, MMMM d")
+  property string timeFormat: setting("timeFormat", "HH:mm")
+  property string dateFormat: setting("dateFormat", "dddd, d MMMM")
+
+  property bool showKeyboardLayout: setting("showKeyboardLayout", true) === true
+  property bool showCapsLock: setting("showCapsLock", true) === true
+  property bool showMedia: setting("showMedia", false) === true
+  property real backgroundDim: numberSetting("backgroundDim", 0.15, 0, 1)
+  property real backgroundBlur: numberSetting("backgroundBlur", 0.65, 0, 1)
+  property int backgroundBlurMax: Math.round(numberSetting("backgroundBlurMax", 64, 0, 128))
+  property real backgroundBlurMultiplier: numberSetting("backgroundBlurMultiplier", 1.0, 0, 2)
 
   property bool lockRequested: false
   property bool pendingSessionLock: false
@@ -69,7 +78,14 @@ Item {
   }
   function setting(key, fallback) {
     var value = root.fileConfig ? root.fileConfig[key] : undefined;
+    if (value === undefined || value === null)
+      value = root.settings ? root.settings[key] : undefined;
     return value === undefined || value === null ? fallback : value;
+  }
+  function numberSetting(key, fallback, minimum, maximum) {
+    var raw = setting(key, fallback);
+    if (typeof raw !== "number" || !isFinite(raw)) return fallback;
+    return Math.max(minimum, Math.min(maximum, raw));
   }
   property int maxConfigBytes: 65536
   property int configTimeoutMs: 5000
@@ -84,7 +100,7 @@ Item {
     configProc.collectedBytes = 0;
     configProc.overflowed = false;
     configProc.timedOut = false;
-    configProc.command = [root.readScriptPath, Quickshell.env("HOME") + "/.config/omarchy/lock.json", String(root.maxConfigBytes)];
+    configProc.command = [root.readScriptPath, Quickshell.env("HOME") + "/.config/omarchy/better-lock.json", String(root.maxConfigBytes)];
     configWatchdog.restart();
     configProc.running = true;
   }
@@ -466,7 +482,7 @@ Item {
 
     WlSessionLockSurface {
       id: lockSurface
-      color: Color.background
+      color: Commons.Color.background
 
       LockView {
         id: lockView
@@ -483,6 +499,13 @@ Item {
         userName: root.userName
         timeFormat: root.timeFormat
         dateFormat: root.dateFormat
+        showKeyboardLayout: root.showKeyboardLayout
+        showCapsLock: root.showCapsLock
+        showMedia: root.showMedia
+        backgroundDim: root.backgroundDim
+        backgroundBlur: root.backgroundBlur
+        backgroundBlurMax: root.backgroundBlurMax
+        backgroundBlurMultiplier: root.backgroundBlurMultiplier
         onPasswordTextEdited: function (password) {
           root.enteredPassword = password;
         }
@@ -528,6 +551,13 @@ Item {
       userName: root.userName
       timeFormat: root.timeFormat
       dateFormat: root.dateFormat
+      showKeyboardLayout: root.showKeyboardLayout
+      showCapsLock: root.showCapsLock
+      showMedia: root.showMedia
+      backgroundDim: root.backgroundDim
+      backgroundBlur: root.backgroundBlur
+      backgroundBlurMax: root.backgroundBlurMax
+      backgroundBlurMultiplier: root.backgroundBlurMultiplier
       onWakeRequested: root.runWake()
       onSleepRequested: root.runBlank()
       onShutdownRequested: root.requestShutdown()

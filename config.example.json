@@ -1,0 +1,11 @@
+{
+  "timeFormat": "HH:mm",
+  "dateFormat": "dddd, d MMMM",
+  "showKeyboardLayout": true,
+  "showCapsLock": true,
+  "showMedia": false,
+  "backgroundDim": 0.15,
+  "backgroundBlur": 0.65,
+  "backgroundBlurMax": 64,
+  "backgroundBlurMultiplier": 1.0
+}

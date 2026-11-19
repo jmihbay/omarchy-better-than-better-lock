@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "bibek.lock",
-  "name": "Better Lock",
-  "version": "1.0.7",
-  "author": "Bibek Bhusal",
-  "description": "Quickshell session lock clone with date/time, power controls, and forgot password prompt.",
-  "homepage": "https://github.com/BibekBhusal0/omarchy-better-lock",
+  "id": "jmihbay.better-lock",
+  "name": "Better Lock — jmihbay",
+  "version": "1.1.0",
+  "author": "jmihbay; original by Bibek Bhusal",
+  "description": "Theme-following lock with keyboard layout, Caps Lock and configurable wallpaper effects.",
+  "homepage": "https://github.com/jmihbay/omarchy-better-lock",
   "kinds": [
     "service"
   ],
@@ -14,26 +14,76 @@
     "service": "Service.qml"
   },
   "omarchy": {
-    "clonedFrom": "omarchy.lock"
+    "clonedFrom": "omarchy.lock",
+    "capabilities": [
+      "authentication"
+    ]
   },
   "defaults": {
-    "timeFormat": "hh:mm AP",
-    "dateFormat": "dddd, MMMM d"
+    "timeFormat": "HH:mm",
+    "dateFormat": "dddd, d MMMM",
+    "showKeyboardLayout": true,
+    "showCapsLock": true,
+    "showMedia": false,
+    "backgroundDim": 0.15,
+    "backgroundBlur": 0.65,
+    "backgroundBlurMax": 64,
+    "backgroundBlurMultiplier": 1.0
   },
   "schema": [
     {
       "key": "timeFormat",
       "type": "string",
-      "label": "Time format",
-      "defaultValue": "hh:mm AP",
-      "description": "Format string for lock screen time text"
+      "label": "timeFormat",
+      "defaultValue": "HH:mm"
     },
     {
       "key": "dateFormat",
       "type": "string",
-      "label": "Date format",
-      "defaultValue": "dddd, MMMM d",
-      "description": "Format string for lock screen date text"
+      "label": "dateFormat",
+      "defaultValue": "dddd, d MMMM"
+    },
+    {
+      "key": "showKeyboardLayout",
+      "type": "boolean",
+      "label": "showKeyboardLayout",
+      "defaultValue": true
+    },
+    {
+      "key": "showCapsLock",
+      "type": "boolean",
+      "label": "showCapsLock",
+      "defaultValue": true
+    },
+    {
+      "key": "showMedia",
+      "type": "boolean",
+      "label": "showMedia",
+      "defaultValue": false
+    },
+    {
+      "key": "backgroundDim",
+      "type": "number",
+      "label": "backgroundDim",
+      "defaultValue": 0.15
+    },
+    {
+      "key": "backgroundBlur",
+      "type": "number",
+      "label": "backgroundBlur",
+      "defaultValue": 0.65
+    },
+    {
+      "key": "backgroundBlurMax",
+      "type": "number",
+      "label": "backgroundBlurMax",
+      "defaultValue": 64
+    },
+    {
+      "key": "backgroundBlurMultiplier",
+      "type": "number",
+      "label": "backgroundBlurMultiplier",
+      "defaultValue": 1.0
     }
   ]
 }

@@ -3,6 +3,7 @@ import QtQuick.Effects
 import Quickshell
 import Quickshell.Services.Mpris
 import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 
 Item {
@@ -22,6 +23,13 @@ Item {
   property string userName: Quickshell.env("USER") || Quickshell.env("LOGNAME") || "User"
   property string timeFormat: "hh:mm AP"
   property string dateFormat: "dddd, MMMM d"
+  property bool showKeyboardLayout: true
+  property bool showCapsLock: true
+  property bool showMedia: false
+  property real backgroundDim: 0.15
+  property real backgroundBlur: 0.65
+  property int backgroundBlurMax: 64
+  property real backgroundBlurMultiplier: 1.0
   property int focusIndex: 0
   property bool mediaPopupVisible: false
 
@@ -36,9 +44,9 @@ Item {
   readonly property real passwordDotScale: dotMetrics.advanceWidth > 0 ? Math.min(1, (passwordInput.width - 4) / dotMetrics.advanceWidth) : 1
   readonly property bool showPasswordCursor: inputEnabled && !authenticatingPassword && failureMessage.length === 0
   readonly property bool errorState: failureMessage.length > 0
-  readonly property var inputBorderSpec: errorState ? Border.surfaceSpec("lock", "border-error", Color.lock.borderError, root.outlineThickness, "border-alpha") : (passwordInput.activeFocus ? Border.surfaceSpec("lock", "border-active", Color.lock.borderActive, root.outlineThickness, "border-alpha") : Border.surfaceSpec("lock", "border", Color.lock.border, 1, "border-alpha"))
+  readonly property var inputBorderSpec: errorState ? Border.surfaceSpec("lock", "border-error", Commons.Color.lock.borderError, root.outlineThickness, "border-alpha") : (passwordInput.activeFocus ? Border.surfaceSpec("lock", "border-active", Commons.Color.lock.borderActive, root.outlineThickness, "border-alpha") : Border.surfaceSpec("lock", "border", Commons.Color.lock.border, 1, "border-alpha"))
 
-  readonly property var mprisPlayers: Mpris.players ? Mpris.players.values : []
+  readonly property var mprisPlayers: root.showMedia && Mpris.players ? Mpris.players.values : []
   readonly property var activeMprisPlayer: {
     if (!mprisPlayers)
       return null;
@@ -241,7 +249,7 @@ Item {
 
   Rectangle {
     anchors.fill: parent
-    color: Color.background
+    color: Commons.Color.background
     focus: true
 
     Keys.onPressed: function (event) {
@@ -285,15 +293,15 @@ Item {
       source: wallpaper
       autoPaddingEnabled: false
       blurEnabled: root.loadBackground && wallpaper.status === Image.Ready
-      blur: 1.0
-      blurMax: 128
-      blurMultiplier: 1.6
-      contrast: -0.10
+      blur: root.backgroundBlur
+      blurMax: root.backgroundBlurMax
+      blurMultiplier: root.backgroundBlurMultiplier
+      contrast: 0.0
     }
 
     Rectangle {
       anchors.fill: parent
-      color: Qt.rgba(0, 0, 0, 0.35)
+      color: Qt.rgba(Commons.Color.background.r, Commons.Color.background.g, Commons.Color.background.b, root.backgroundDim)
     }
 
     MouseArea {
@@ -308,6 +316,7 @@ Item {
     }
 
     Text {
+      textFormat: Text.PlainText
       id: forgotPasswordMsgText
       visible: root.forgotPasswordMessage.length > 0
       anchors.top: parent.top
@@ -315,7 +324,7 @@ Item {
       anchors.horizontalCenter: parent.horizontalCenter
       width: Math.min(root.width - 80, 720)
       text: root.forgotPasswordMessage
-      color: Color.lock.textError
+      color: Commons.Color.lock.textError
       font.family: Style.font.family
       font.pixelSize: Math.round(Style.font.heading * 1.6)
       font.bold: true
@@ -330,8 +339,8 @@ Item {
       tooltipText: root.mediaTitle
       visible: root.hasMedia
       bordered: true
-      background: Color.lock.background
-      foreground: Color.lock.text
+      background: Commons.Color.lock.background
+      foreground: Commons.Color.lock.text
       horizontalPadding: 14
       verticalPadding: 8
       anchors.bottom: parent.bottom
@@ -353,8 +362,8 @@ Item {
       z: 100
       x: mediaCornerBtn.x
       y: mediaCornerBtn.y - height - 16
-      color: Color.popups.background
-      borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, 1, "border-alpha")
+      color: Commons.Color.popups.background
+      borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, 1, "border-alpha")
       radius: Style.cornerRadius
       topPadding: 10
       bottomPadding: 10
@@ -386,10 +395,11 @@ Item {
           }
 
           Text {
+            textFormat: Text.PlainText
             anchors.centerIn: parent
             visible: !artImage.visible
             text: "󰝚"
-            color: Color.popups.text
+            color: Commons.Color.popups.text
             font.family: Style.font.family
             font.pixelSize: Math.round(Style.font.heading * 1.1)
           }
@@ -401,10 +411,10 @@ Item {
           spacing: 4
 
           Text {
+            textFormat: Text.PlainText
             width: parent.width
             text: root.mediaTitle
-            textFormat: Text.PlainText
-            color: Color.popups.text
+            color: Commons.Color.popups.text
             font.family: Style.font.family
             font.pixelSize: Style.font.body
             font.bold: true
@@ -412,11 +422,11 @@ Item {
           }
 
           Text {
+            textFormat: Text.PlainText
             width: parent.width
             text: root.mediaArtist
-            textFormat: Text.PlainText
             visible: root.mediaArtist.length > 0
-            color: Color.popups.text
+            color: Commons.Color.popups.text
             font.family: Style.font.family
             font.pixelSize: Style.font.bodySmall
             elide: Text.ElideRight
@@ -432,7 +442,7 @@ Item {
               implicitHeight: 36
               iconSize: Style.font.iconLarge
               background: "transparent"
-              foreground: Color.popups.text
+              foreground: Commons.Color.popups.text
               horizontalPadding: 0
               verticalPadding: 0
               hasCursor: root.focusIndex === 3
@@ -451,7 +461,7 @@ Item {
               implicitHeight: 36
               iconSize: Style.font.iconLarge
               background: "transparent"
-              foreground: Color.popups.text
+              foreground: Commons.Color.popups.text
               horizontalPadding: 0
               verticalPadding: 0
               hasCursor: root.focusIndex === 4
@@ -476,7 +486,7 @@ Item {
               implicitHeight: 36
               iconSize: Style.font.iconLarge
               background: "transparent"
-              foreground: Color.popups.text
+              foreground: Commons.Color.popups.text
               horizontalPadding: 0
               verticalPadding: 0
               hasCursor: root.focusIndex === 5
@@ -500,9 +510,10 @@ Item {
       spacing: 6
 
       Text {
+        textFormat: Text.PlainText
         anchors.horizontalCenter: parent.horizontalCenter
         text: root.currentTimeString
-        color: Color.lock.text
+        color: Commons.Color.lock.text
         font.family: Style.font.family
         font.pixelSize: Math.round(Style.font.heading * 3.2)
         font.weight: Font.Bold
@@ -510,9 +521,10 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         anchors.horizontalCenter: parent.horizontalCenter
         text: root.currentDateString
-        color: Color.lock.placeholder
+        color: Commons.Color.lock.placeholder
         font.family: Style.font.family
         font.pixelSize: Math.round(Style.font.heading * 1.25)
         horizontalAlignment: Text.AlignHCenter
@@ -524,7 +536,7 @@ Item {
       width: root.fieldWidth
       height: root.fieldHeight
       anchors.centerIn: parent
-      color: Color.lock.background
+      color: Commons.Color.lock.background
       borderSpec: root.inputBorderSpec
       radius: Style.cornerRadius
       clip: true
@@ -545,16 +557,16 @@ Item {
         echoMode: TextInput.Password
         passwordCharacter: "\u25CF"
         passwordMaskDelay: 0
-        color: Color.lock.text
-        selectionColor: Color.lock.selection
-        selectedTextColor: Color.lock.text
+        color: Commons.Color.lock.text
+        selectionColor: Commons.Color.lock.selection
+        selectedTextColor: Commons.Color.lock.text
         font.family: Style.font.family
         font.pixelSize: text.length > 0 ? Math.max(1, Math.floor(root.passwordDotFontSize * root.passwordDotScale)) : root.fieldFontSize
         font.letterSpacing: text.length > 0 ? root.passwordDotLetterSpacing * root.passwordDotScale : 0
         cursorVisible: activeFocus && root.showPasswordCursor && text.length > 0
         cursorDelegate: Rectangle {
           width: 2
-          color: Color.lock.text
+          color: Commons.Color.lock.text
           visible: passwordInput.cursorVisible
         }
 
@@ -593,6 +605,8 @@ Item {
               root.passwordTextEdited("");
             }
             event.accepted = true;
+          } else if (event.key === Qt.Key_CapsLock) {
+            keyboardStatus.refreshSoon();
           } else if (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_U) {
             root.passwordTextEdited("");
             event.accepted = true;
@@ -601,10 +615,11 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         anchors.fill: passwordInput
         text: root.authenticatingPassword ? "Checking…" : (root.failureMessage.length > 0 ? root.failureMessage : root.placeholderText)
         visible: passwordInput.text.length === 0
-        color: root.authenticatingPassword ? Color.lock.text : (root.failureMessage.length > 0 ? Color.lock.textError : Color.lock.placeholder)
+        color: root.authenticatingPassword ? Commons.Color.lock.text : (root.failureMessage.length > 0 ? Commons.Color.lock.textError : Commons.Color.lock.placeholder)
         font.family: Style.font.family
         font.pixelSize: root.fieldFontSize
         font.italic: !root.authenticatingPassword && root.failureMessage.length > 0
@@ -614,6 +629,7 @@ Item {
       }
 
       Text {
+        textFormat: Text.PlainText
         id: fingerprintIcon
         objectName: "fingerprintIndicator"
         anchors.right: parent.right
@@ -621,7 +637,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         visible: root.fingerprintConfigured
         text: "󰈷"
-        color: Color.lock.placeholder
+        color: Commons.Color.lock.placeholder
         font.family: Style.font.family
         font.pixelSize: Math.round(root.fieldFontSize * 1.1)
         horizontalAlignment: Text.AlignHCenter
@@ -629,14 +645,24 @@ Item {
       }
     }
 
+    KeyboardStatus {
+      id: keyboardStatus
+      anchors.top: inputField.bottom
+      anchors.topMargin: Style.space(16)
+      anchors.horizontalCenter: parent.horizontalCenter
+      active: root.loadBackground && root.visible
+      showLayout: root.showKeyboardLayout
+      showCapsLock: root.showCapsLock
+    }
+
     Button {
       id: forgotPasswordBtn
-      anchors.top: inputField.bottom
-      anchors.topMargin: 16
+      anchors.top: keyboardStatus.bottom
+      anchors.topMargin: keyboardStatus.height > 0 ? Style.space(8) : Style.space(16)
       anchors.horizontalCenter: parent.horizontalCenter
       text: "Forgot password"
       fontSize: Style.font.bodySmall
-      foreground: Color.lock.placeholder
+      foreground: Commons.Color.lock.placeholder
       background: "transparent"
       horizontalPadding: 12
       verticalPadding: 6
