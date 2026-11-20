@@ -23,7 +23,6 @@ Item {
   readonly property string userBackgroundsRoot: home + "/.config/omarchy/backgrounds"
   readonly property string omarchyBin: "/usr/share/omarchy/bin/omarchy"
   readonly property string systemctlBin: "/usr/bin/systemctl"
-  readonly property string sessionLockedBin: "/usr/share/omarchy/bin/omarchy-hyprland-session-locked"
   readonly property string wakeBin: "/usr/share/omarchy/bin/omarchy-system-wake"
   readonly property string brightKeyboardBin: "/usr/share/omarchy/bin/omarchy-brightness-keyboard"
   readonly property string brightDisplayBin: "/usr/share/omarchy/bin/omarchy-brightness-display"
@@ -78,8 +77,6 @@ Item {
   property int backgroundVersion: 0
   property string lastEvent: "init"
   property string lastEventAt: ""
-  property bool strandedLock: false
-  property bool strandedLockResolved: false
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
@@ -242,17 +239,6 @@ Item {
     sessionLock.locked = true;
   }
 
-  function checkStrandedLock() {
-    if (strandedLockResolved || strandedLockCheckProc.running)
-      return;
-    if (locked || lockRequested) {
-      strandedLockResolved = true;
-      return;
-    }
-    strandedLockCheckProc.running = true;
-    strandedWatchdog.restart();
-  }
-
   function killProc(proc) {
     try {
       proc.signal(9);
@@ -268,14 +254,6 @@ Item {
     if (line.indexOf(root.stateRoot + "/") !== 0 && line.indexOf(root.shareRoot + "/") !== 0 && line.indexOf(root.userBackgroundsRoot + "/") !== 0)
       return "";
     return line;
-  }
-
-  function recoverStrandedLock() {
-    if (!strandedLock || locked || !passwordPamConfigured)
-      return;
-    strandedLock = false;
-    logEvent("lock-stranded: recovering");
-    beginLock();
   }
 
   function refreshBackground() {
@@ -787,46 +765,6 @@ Item {
   }
 
   Timer {
-    id: strandedWatchdog
-    interval: root.helperTimeoutMs
-    repeat: false
-    onTriggered: {
-      if (strandedLockCheckProc.running) {
-        root.killProc(strandedLockCheckProc);
-        root.strandedLockResolved = true;
-      }
-    }
-  }
-
-  Process {
-    id: strandedLockCheckProc
-    command: [root.sessionLockedBin]
-    clearEnvironment: true
-    environment: ({
-        "PATH": root.fixedPath,
-        "HYPRLAND_INSTANCE_SIGNATURE": null,
-        "XDG_RUNTIME_DIR": null
-      })
-    stderr: SplitParser {
-      onRead: function (data) {
-        strandedLockCheckProc.collectedBytes += String(data + "\n").length;
-        if (strandedLockCheckProc.collectedBytes > root.maxHelperBytes)
-          root.killProc(strandedLockCheckProc);
-      }
-    }
-    property int collectedBytes: 0
-    onExited: function (exitCode) {
-      strandedWatchdog.stop();
-      strandedLockCheckProc.collectedBytes = 0;
-      if (exitCode === 2)
-        return;
-      root.strandedLockResolved = true;
-      root.strandedLock = exitCode === 0 && !root.locked && !root.lockRequested;
-      root.recoverStrandedLock();
-    }
-  }
-
-  Timer {
     id: wakeWatchdog
     interval: root.wakeTimeoutMs
     repeat: false
@@ -1008,31 +946,10 @@ Item {
     onTriggered: root.requestSessionLock()
   }
 
-  Timer {
-    id: strandedLockRetryTimer
-    interval: 500
-    repeat: true
-    readonly property int budget: 20
-    property int remaining: 20
-    running: !root.strandedLockResolved && remaining > 0
-
-    function rearm() {
-      if (!root.strandedLockResolved)
-        remaining = budget;
-    }
-
-    onTriggered: {
-      remaining -= 1;
-      root.checkStrandedLock();
-    }
-  }
-
   Connections {
     target: Quickshell
     function onScreensChanged() {
       root.requestSessionLock();
-      strandedLockRetryTimer.rearm();
-      root.checkStrandedLock();
     }
   }
 
@@ -1070,19 +987,9 @@ Item {
     onFileChanged: reload()
   }
 
-  onPasswordPamConfiguredChanged: {
-    if (!passwordPamConfigured)
-      return;
-    strandedLock = false;
-    strandedLockResolved = false;
-    strandedLockRetryTimer.rearm();
-    checkStrandedLock();
-  }
-
   Component.onCompleted: {
     refreshBackground();
     refreshFingerprintStatus();
-    checkStrandedLock();
     root.loadConfig();
   }
 
@@ -1090,20 +997,22 @@ Item {
     target: "lock"
 
     function lock(): string {
+      if (sessionLock.secure)
+        return "ok";
       if (!root.passwordPamConfigured)
         return "missing-pam";
       if (!root.locked && !root.beginLock())
         return "failed";
-      return "ok";
+      return "pending";
     }
 
     function isLocked(): string {
-      return root.locked ? "true" : "false";
+      return sessionLock.secure ? "true" : "false";
     }
 
     function status(): string {
       return JSON.stringify({
-          "locked": root.locked,
+          "locked": sessionLock.secure,
           "requested": root.lockRequested,
           "pending": root.pendingSessionLock,
           "sessionLocked": sessionLock.locked,
