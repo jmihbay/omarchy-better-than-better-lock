@@ -1001,9 +1001,9 @@ Item {
         return "ok";
       if (!root.passwordPamConfigured)
         return "missing-pam";
-      if (!root.locked && !root.beginLock())
-        return "failed";
-      return "pending";
+      if (sessionLock.locked || (root.lockRequested && root.pendingSessionLock && pendingSessionLockTimer.running))
+        return "pending";
+      return root.beginLock() ? "pending" : "failed";
     }
 
     function isLocked(): string {
